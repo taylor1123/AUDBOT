@@ -11,7 +11,7 @@ from urllib3.exceptions import InsecureRequestWarning
 requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
 
 # Replace 'your-token-here' with your actual Discord bot token
-TOKEN = 'MTA5NTkwODk4ODQ4ODUyNzg5Mg.GDQ9sQ.yxzp6_F9iBIJ_iJRIFaySmE8R1YUxZuJpc5Ejs'
+TOKEN = 'MTA5NTkwODk4ODQ4ODUyNzg5Mg.GHh_bJ.GR9GVk6eqTaYdHJw8KQdSLYNICD2UC4hYBCkZI'
 
 # Replace 'your-airsonic-url' with your actual Airsonic URL
 # Replace 'your-airsonic-username' and 'your-airsonic-password' with your actual Airsonic credentials
@@ -26,7 +26,7 @@ intents.typing = False
 intents.presences = False
 intents.message_content = True
 
-bot = commands.Bot(command_prefix='!', intents=intents)
+bot = commands.Bot(command_prefix='?', intents=intents)
 def generate_salt(length=6):
     return ''.join(random.choices(string.ascii_letters + string.digits, k=length))
 
@@ -233,7 +233,7 @@ async def get_player_id(ctx):
 
 
 @bot.command()
-async def play_playlist_7(ctx):
+async def play7(ctx):
     playlist_id = 7  # specify the playlist ID here
     player_id = 24  # specify the player ID here
 
@@ -264,6 +264,25 @@ async def play_playlist_7(ctx):
         return
 
     await ctx.send('Playlist started successfully.')
+
+@bot.command()
+async def start(ctx):
+    player_id = 24  # specify the player ID here
+
+    # Start playing the jukebox on the specified player
+    response_jukebox = requests.get(get_airsonic_api_url('jukeboxControl', extra_params={'action': 'start', 'player': player_id}), verify=False)
+    data_jukebox = response_jukebox.json()
+
+    if response_jukebox.status_code != 200:
+        await ctx.send(f'Error {response_jukebox.status_code}: Unable to start jukebox.')
+        return
+
+    if data_jukebox['subsonic-response']['status'] != 'ok':
+        await ctx.send(f'Error: {data_jukebox["subsonic-response"]["error"]["message"]}')
+        return
+
+    await ctx.send('Jukebox started successfully.')
+
 
 if __name__ == '__main__':
     bot.run(TOKEN)
